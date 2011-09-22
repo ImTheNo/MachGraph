@@ -7,7 +7,6 @@
      imageLabel = new QLabel;
      imageLabel->setBackgroundRole(QPalette::Base);
      imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-     imageLabel->setScaledContents(true);
 
      scrollArea = new QScrollArea;
      scrollArea->setBackgroundRole(QPalette::Dark);
@@ -19,6 +18,8 @@
 
      sigma = 1;
      alpha = 1.5;
+     factor = 1.0;
+     r_factor = 0.0;
 
      setWindowTitle(tr("Image Viewer"));
      resize(500, 400);
@@ -51,11 +52,19 @@ void ImageViewer::createActions()
 
      gausAct = new QAction(tr("Gaus"), this);
      gausAct->setShortcut(tr("Ctrl+G"));
-     connect(gausAct, SIGNAL(triggered()), this, SLOT(gaus_filter()));
+     connect(gausAct, SIGNAL(triggered()), this, SLOT(from_user_gaus_filter()));
 
      unsharpAct = new QAction(tr("Unsharp"), this);
      unsharpAct->setShortcut(tr("Ctrl+U"));
      connect(unsharpAct, SIGNAL(triggered()), this, SLOT(unsharp_filter()));
+
+     scaleAct = new QAction(tr("Scale"), this);
+     scaleAct->setShortcut(tr("Ctrl+R"));
+     connect(scaleAct, SIGNAL(triggered()), this, SLOT(scale()));
+
+     rotateAct = new QAction(tr("Rotate"), this);
+     rotateAct->setShortcut(tr("Ctrl+T"));
+     connect(rotateAct, SIGNAL(triggered()), this, SLOT(rotate()));
  }
 
  void ImageViewer::createMenus()
@@ -74,10 +83,15 @@ void ImageViewer::createActions()
      contrastMenu->addAction(contAct);
      contrastMenu->addAction(per_cAct);
 
+     geometryMenu = new QMenu(tr("Geometry"), this);
+     geometryMenu->addAction(scaleAct);
+     geometryMenu->addAction(rotateAct);
+
      QMenuBar *MenuBar = menuBar();
      MenuBar->addMenu(fileMenu);
      MenuBar->addMenu(filterMenu);
      MenuBar->addMenu(contrastMenu);
+     MenuBar->addMenu(geometryMenu);
  }
 
  void ImageViewer::open()

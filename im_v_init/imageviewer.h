@@ -26,8 +26,10 @@
      void saveAs();
      void contrast();
      void per_channel();
-     void gaus_filter();
+     void from_user_gaus_filter();
      void unsharp_filter();
+     void scale();
+     void rotate();
 
  private:
      void createActions();
@@ -45,19 +47,27 @@
      QAction *per_cAct;
      QAction *gausAct;
      QAction *unsharpAct;
+     QAction *rotateAct;
+     QAction *scaleAct;
 
      QMenu *fileMenu;
      QMenu *filterMenu;
      QMenu *contrastMenu;
+     QMenu *geometryMenu;
 
      QString fileName;
      QImage image;
-     int sigma;
-     int alpha;
+     double sigma;
+     double alpha;
+     double factor;
+     double r_factor;
+
+     void updateLabel();
 
      bool SanityCheck();
-     void updateLabel();
-     void convolution(int x0, int y0, int width, int height, std::vector<std::vector<double> > & filter);
+
+     void gaus_filter(double sigma);
+     void convolution(std::vector<std::vector<double> > & filter);
  };
 
  #endif

@@ -142,16 +142,20 @@
      updateLabel();
  }
 
- void ImageViewer::gaus_filter()
+ void ImageViewer::from_user_gaus_filter()
  {
      bool result;
-     sigma = QInputDialog::getInt(this, tr("Sigma definition"), tr("Sigma: "), sigma, 1, 2048, 1, &result);
+     sigma = QInputDialog::getDouble(this, tr("Sigma definition"), tr("Sigma: "), sigma, 0.33, 7.0, 5, &result);
      if (!result) 
      {
          return;
      }
+     gaus_filter(sigma);
+ }
+ void ImageViewer::gaus_filter(double sigma)
+ {
      int size = 3 * sigma;
-     int i, j, n, x, y;
+     int i, j, n;
      if (SanityCheck()) 
      {
          return;
@@ -160,15 +164,23 @@
      n = size / 2;
      std::vector<std::vector<double> > filter(size, std::vector<double>(size, 0.0)); 
 
-     for (i = 0, x = -n; i < size; i++, x++) 
+     for (i = 0; i <= n; i++) 
      {
-         for (j = 0, y = -n; j < size; j++, y++) 
+         for (j = 0; j <= i; j++) 
          {
-             filter[i][j] = gaus_dist(x, y, sigma);
+             filter[j + n][i + n] = filter[i + n][j + n] = gaus_dist(i, j, sigma);
+         }
+     }
+     for (i = 0; i <= n; i++) 
+     {
+         for (j = 0; j <= n; j++) 
+         {
+             filter[-i + n][-j + n] = filter[-i + n][j + n] = 
+             filter[i + n][-j + n] = filter[i + n][j + n]; 
          }
      }
 
-     convolution(0, 0, image.width(), image.height(), filter);
+     convolution(filter);
      updateLabel();
  }
 
@@ -191,14 +203,11 @@
          }
      }
      filter[n][n] += 1 + alpha;
-         QMessageBox::information(this, tr("Image Viewer"),
-                                  tr("unsharp index  %1").arg(QString().setNum(filter[n][n])));
-
-     convolution(0, 0, image.width(), image.height(), filter);
+     convolution(filter);
      updateLabel();
  }
  
- void ImageViewer::convolution(int x0, int y0, int width, int height, std::vector<std::vector<double> > & filter)
+ void ImageViewer::convolution(std::vector<std::vector<double> > & filter)
  {
      /* 
       * I supposed that my filter has (2n+1)*(2n+1) size
@@ -208,9 +217,25 @@
      int center = filter.size() / 2;
      int n = filter.size() / 2;
      int proc_i, proc_j; // index of currently processing point 
-     for (proc_i = x0; proc_i < x0 + width; proc_i++) 
+     double factor_sum = 0.0; //for normalizing
+     uint i, j;
+     for (i = 0; i < filter.size(); i++) 
      {
-         for (proc_j = y0; proc_j < y0 + height; proc_j++) 
+         for (j = 0; j < filter.size(); j++) 
+         {
+             factor_sum += filter[i][j];
+         }
+     }
+     for (i = 0; i < filter.size(); i++) 
+     {
+         for (j = 0; j < filter.size(); j++) 
+         {
+             filter[i][j] /= factor_sum;
+         }
+     }
+     for (proc_i = 0; proc_i < image.width(); proc_i++) 
+     {
+         for (proc_j = 0; proc_j < image.height(); proc_j++) 
          {
              /* in this place filter's weighs multiplied with
               * matching dots near (proc_i, proc_j)

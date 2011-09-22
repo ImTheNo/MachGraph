@@ -8,10 +8,11 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += imageviewer.h filters.h
+HEADERS += imageviewer.h filters.h geometry.h
 SOURCES += imageviewer.cpp \ 
            main.cpp \
-           filters.cpp
+           filters.cpp \
+           geometry.cpp 
 
  wince*: {
     DEPLOYMENT_PLUGIN += qjpeg qmng qgif
