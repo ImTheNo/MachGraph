@@ -30,6 +30,7 @@
      void unsharp_filter();
      void scale();
      void rotate();
+     void gray_world();
 
  private:
      void createActions();
@@ -49,6 +50,7 @@
      QAction *unsharpAct;
      QAction *rotateAct;
      QAction *scaleAct;
+     QAction *grayAct;
 
      QMenu *fileMenu;
      QMenu *filterMenu;

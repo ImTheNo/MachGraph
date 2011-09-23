@@ -1,3 +1,6 @@
+#ifndef GEOMETRY_H
+#define GEOMETRY_H
+
 #include <QtGui>
 #include <vector>
 #include <cmath>
@@ -12,3 +15,4 @@
 
 #define ROTATE_X(x, y, x0, y0, factor) (((x) - x0) * cos(factor) + ((y) - y0) * sin(factor) + x0)
 #define ROTATE_Y(x, y, x0, y0, factor) ((-1) * ((x) - x0) * sin(factor) + ((y) - y0) * cos(factor) + y0)
+#endif

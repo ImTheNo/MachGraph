@@ -4,6 +4,7 @@
 
  #include "imageviewer.h"
  #include "filters.h"
+ #include "geometry.h"
 
  void ImageViewer::contrast()
  {
@@ -152,6 +153,7 @@
      }
      gaus_filter(sigma);
  }
+
  void ImageViewer::gaus_filter(double sigma)
  {
      int size = 3 * sigma;
@@ -204,6 +206,91 @@
      }
      filter[n][n] += 1 + alpha;
      convolution(filter);
+     updateLabel();
+ }
+
+ void ImageViewer::gray_world()
+ {
+     double av_ch[3] = {0.0, 0.0, 0.0}, gray_av = 0.0; //for normalizing
+     double factor_ch[3] = {0.0, 0.0, 0.0}; //for normalizing
+     int i, j;
+     QRgb tmp;
+     if (SanityCheck()) 
+     {
+         return;
+     }
+     //seeking for average for r, g and b channels
+     for (i = 0; i < image.width(); i++) 
+     {
+         for (j = 0; j < image.height(); j++) 
+         {
+             tmp = image.pixel(i, j);
+             av_ch[0] += qRed(tmp);
+             av_ch[1] += qGreen(tmp);
+             av_ch[2] += qBlue(tmp);
+         }
+     }
+     for (i = 0; i < 3; i++) 
+     {
+         av_ch[i] /= (image.width() * image.height());
+     }
+     //find gray value
+     gray_av = (av_ch[0] + av_ch[1] + av_ch[2]) / 3;
+     for (i = 0; i < 3; i++) 
+     {
+         //simble hack for uncommon cases
+         if (av_ch[i] == 0) 
+         {
+             factor_ch[i] = 1.0;
+         }
+         else
+         {
+             //determinig the weighs of every channel
+             factor_ch[i] = gray_av / av_ch[i];
+         }
+     }
+     //this part may be removed: for some images it works really bad
+     
+     //detemining if some pixels have channels values above maximum(255)
+     int max = 0;
+     for (i = 0; i < image.width(); i++) 
+     {
+         for (j = 0; j < image.height(); j++) 
+         {
+             tmp = image.pixel(i, j);
+             if (factor_ch[0] * qRed(tmp) > max) 
+             {
+                 max = factor_ch[0] * qRed(tmp); 
+             }
+             if (factor_ch[1] * qGreen(tmp) > max) 
+             {
+                 max = factor_ch[1] * qGreen(tmp); 
+             }
+             if (factor_ch[2] * qBlue(tmp) > max) 
+             {
+                 max = factor_ch[2] * qBlue(tmp); 
+             }
+         }
+     }
+     //and if they has, normolize all channels;
+     if (max / 255 - 1.0 > EPS) 
+     {
+         for (i = 0; i < 3; i++) 
+         {
+             factor_ch[i] /= (max / 255);
+         }
+     }
+     //setting up new pixels
+     for (i = 0; i < image.width(); i++) 
+     {
+         for (j = 0; j < image.height(); j++) 
+         {
+             tmp = image.pixel(i, j);
+             image.setPixel(i, j, qRgb(NORM(qRed(tmp) * factor_ch[0]), NORM(qGreen(tmp) * factor_ch[1]), NORM(qBlue(tmp) * factor_ch[2])));
+
+         }
+     }
+
      updateLabel();
  }
  

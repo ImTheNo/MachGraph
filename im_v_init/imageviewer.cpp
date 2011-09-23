@@ -65,6 +65,10 @@ void ImageViewer::createActions()
      rotateAct = new QAction(tr("Rotate"), this);
      rotateAct->setShortcut(tr("Ctrl+T"));
      connect(rotateAct, SIGNAL(triggered()), this, SLOT(rotate()));
+
+     grayAct = new QAction(tr("Gray World"), this);
+     grayAct->setShortcut(tr("Ctrl+M"));
+     connect(grayAct, SIGNAL(triggered()), this, SLOT(gray_world()));
  }
 
  void ImageViewer::createMenus()
@@ -78,6 +82,7 @@ void ImageViewer::createActions()
      filterMenu = new QMenu(tr("Filter"), this);
      filterMenu->addAction(gausAct);
      filterMenu->addAction(unsharpAct);
+     filterMenu->addAction(grayAct);
 
      contrastMenu = new QMenu(tr("Contrast"), this);
      contrastMenu->addAction(contAct);
