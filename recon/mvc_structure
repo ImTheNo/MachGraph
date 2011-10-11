@@ -1,0 +1,25 @@
+My MVC structure of classes:
+
+ViewBase --- view functionality abstract class. real view class must inherit this and implement those methods:
+    tellToUser(QString & message, int num) tell user some information about how model is respond to user input
+    setPrecense(char flag) flag != 0 if program has loaded classificator
+    setQualityEstimation(double recall, double precision) show quality factors to user
+    eventTeach(QString & dir) view emits this single when user entered information about directory into program and want to teach SVM on images from this directory.
+    eventPredictEstimate(QString dir = QString(), QString right_positions = QString()) view emits this single when user wants to recieve prediction info and, optionally, quality estimation.
+    eventEstimate(QString detected, QString right_positions) view emits this single when user wants to recieve quality estimation.
+    Suspend() suspend application interface on the time of model updating
+    Resume() resume interface invocation
+
+
+Controller --- recieve signals from View classes, turn them into appropriate form, and requests some functional from Model:
+    RefreshState() recieve information from Model and forward them to View in appropriate form
+    TeachSlot(QString  dir) parse dir to make array of files on which Model will then teach and then saves model to appropriate location.
+    PredictSlot(QString  dir = QString(), QString right_positions = QString()) parse dir to make array of files on which Model must predict and envoke model to predict when recieves all necessary info update View.
+    EstimateSlot(QString detected, QString right_positions) make Quality estimation based on the results from detected and right_positions
+
+Model --- implements domain logic and supports data consistency 
+    Teach(std::vector<QImage> data, istream & pos) parse pos file and gets positions of objects from main class then teach machine based on that data.
+    GetModel() recieve current predication Model if exists
+    SaveModel(QString name) save current predication Model if exists
+    Predict(std::vector<QImage> data, QString file_name) predicts classes of date and save results to file_name, if prediction model is loaded
+    Estimate(QString detected, QString right_positions) make estimation of quality.
