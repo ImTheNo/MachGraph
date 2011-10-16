@@ -1,5 +1,7 @@
 
 #include "../model.h"
+#include "../controller.h"
+#include "../viewbase.h"
 #include <QDebug>
 
 int main(int argc, char **argv)
@@ -33,9 +35,11 @@ int main(int argc, char **argv)
         qDebug() << "enter right args" << endl;
         return 1;
     }
+    ViewBase *p = (ViewBase *)NULL;
+    Control con(p);
 //    qDebug() << test.teach(argv[1], QString(argv[1]) + "/" + QString("train-processed.idl")) << endl;
 //    test.saveModel(QString(argv[2]) + "/" + QString("model.idl"));
-    qDebug() << test.predict(path, files, out, path.filePath(QString("model.idl"))) << endl;
+//    qDebug() << test.predict(path, files, out, path.filePath(QString("model.idl"))) << endl;
 //    qDebug() << test.estimate(QString(argv[2]) + "/" + QString("results.idl"), QString(argv[2]) + "/" + QString("test-processed.idl"), res) << endl; 
 //    qDebug() << res[0] << " " << res[1] << endl;
     return 0;

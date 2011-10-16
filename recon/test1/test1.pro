@@ -8,8 +8,9 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += ../model.h ../linear.h ../tron.h ../blas/*.h
-SOURCES += main.cpp ../model.cpp ../linear.cpp ../tron.cpp ../blas/*.c
+HEADERS += ../model.h ../linear.h ../tron.h ../blas/*.h ../controller.h ../viewbase.h
+SOURCES += main.cpp ../model.cpp ../linear.cpp ../tron.cpp ../blas/*.c ../controller.cpp 
+
 
  wince*: {
     DEPLOYMENT_PLUGIN += qjpeg qmng qgif

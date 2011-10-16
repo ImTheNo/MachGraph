@@ -47,7 +47,7 @@ int Model::teach(QString dir, QString pos)
     QDir path(dir);
     if (!path.exists()) 
     {
-        return 3;
+        return ERROR_TEACH::ENDIR;
     }
     //take list of images in directory 
     //DO NOT ACCEPT SYMBOLIC LINKS
@@ -62,7 +62,7 @@ int Model::teach(QString dir, QString pos)
     if (!main_pos.open(QIODevice::ReadOnly | QIODevice::Text)) 
     {
         main_pos.close();
-        return 1;
+        return ERROR_TEACH::EFILE;
     }
     QTextStream in(&main_pos);
     //collect positions of main class's object's
@@ -73,7 +73,7 @@ int Model::teach(QString dir, QString pos)
         if (y1 - y0 != STANDART_HEIGHT || x1 - x0 != STANDART_WIDTH) 
         {
             main_pos.close();
-            return 2;
+            return ERROR_TEACH::EINVAL_DIMEN;
         }
         //if we add new image, then resize main vector
         if (filename > main.size()) 
@@ -108,7 +108,7 @@ int Model::teach(QString dir, QString pos)
         tmp_im.load(dir + DELIM + QString::number(i + 1) + PNG);
         if (tmp_im.isNull()) 
         {
-            return 3;
+            return ERROR_TEACH::EIMFILE;
         }
         for (j = 0; j < main[i].size(); j++)
         {
@@ -129,13 +129,13 @@ int Model::teach(QString dir, QString pos)
         tmp_im.load(path.filePath(tmp));
         if (tmp_im.isNull()) 
         {
-            return 3;
+            return ERROR_TEACH::EIMFILE;
         }
         bool check_conversion;
         i = tmp.remove(PNG, Qt::CaseInsensitive).toInt(&check_conversion);
         if (!check_conversion) 
         {
-            return 4;
+            return ERROR_TEACH::ECONV;
         }
         i--; // because files' indexes in dir starting from 1
         int x0 = rand() % (tmp_im.width() - STANDART_WIDTH + 1);
@@ -186,7 +186,7 @@ int Model::loadModel(QString name)
     QByteArray tmp = name.toAscii();
     if((predictor = load_model(tmp.data())) == 0)
     {
-        return 1;
+        return ERROR_LOAD_SAVE::EFILE;
     }
     return 0;
 }
@@ -196,7 +196,7 @@ int Model::saveModel(QString name)
     QByteArray tmp = name.toAscii();
     if (save_model(tmp.data(), predictor))
     {
-        return 1;
+        return ERROR_LOAD_SAVE::EFILE;
     }
     return 0;
 }
@@ -289,7 +289,7 @@ int Model::estimate(QString detected, QString right_positions, double *res)
     {
         qDebug() << detected << endl;
         pos.close();
-        return 1;
+        return ERROR_ESTIMATE::EFILE;
     }
     QTextStream in(&pos);
     in >> filename; 
@@ -299,7 +299,7 @@ int Model::estimate(QString detected, QString right_positions, double *res)
         if (y1 - y0 != STANDART_HEIGHT || x1 - x0 != STANDART_WIDTH) 
         {
             pos.close();
-            return 2;
+            return ERROR_ESTIMATE::EINVAL_DIMEN;
         }
         //if we add new image, then resize main vector
         if (filename > main.size()) 
@@ -315,7 +315,7 @@ int Model::estimate(QString detected, QString right_positions, double *res)
     if (!pos.open(QIODevice::ReadOnly | QIODevice::Text)) 
     {
         pos.close();
-        return 1;
+        return ERROR_ESTIMATE::EFILE;
     }
     in >> filename; 
     while (!in.atEnd()) 
@@ -324,7 +324,7 @@ int Model::estimate(QString detected, QString right_positions, double *res)
         if (y1 - y0 != STANDART_HEIGHT || x1 - x0 != STANDART_WIDTH) 
         {
             pos.close();
-            return 2;
+            return ERROR_ESTIMATE::EINVAL_DIMEN;
         }
         if (filename <= main.size()) 
         {
@@ -345,24 +345,15 @@ int Model::estimate(QString detected, QString right_positions, double *res)
     return 0;
 }
 
-int Model::predict(QDir path, QStringList & files, QTextStream & out, QString model)
+int Model::predict(QDir path, QStringList & files, QTextStream & out)
 {
     int i, k;
     QImage tmp_im;
     char ** grad;
-    //check if user wants to use new model (not current one)
-    if (model != QString()) 
-    {
-        destroyPredictor();
-        if (loadModel(model))
-        {
-            return 1;
-        }
-    }
     //check if model is loaded
     if (!predictor) 
     {
-        return 2;
+        return ERROR_PREDICT::EPRES;
     }
     //allocate space for future predictions
     struct feature_node *example = (feature_node *)calloc(IMAGE_FEATURES(STANDART_HEIGHT, STANDART_WIDTH) + 1, sizeof(struct feature_node));

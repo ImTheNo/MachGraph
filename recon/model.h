@@ -45,7 +45,7 @@ public:
     int teach(QString dir, QString pos);
     int saveModel(QString name);
     int loadModel(QString name);
-    int predict(QDir path, QStringList & files, QTextStream & out, QString model = QString());
+    int predict(QDir path, QStringList & files, QTextStream & out);
     int estimate(QString detected, QString right_positions, double *res);
 private:
     struct problem prob;
@@ -55,4 +55,42 @@ private:
     void calc_HOG(struct feature_node * res, char ** grad, int x = STANDART_X, int y = STANDART_Y);
     void destroyPredictor();
 };
+
+namespace ERROR_TEACH
+{
+enum ERROR_TEACH
+{
+    EFILE = 1, //can't open file pos
+    EINVAL_DIMEN, //invalid dimensions of patch in file
+    ENDIR, //dir is not exist 
+    EIMFILE, //can't open .png file 
+    ECONV // file name is not number 
+};
+}
+
+namespace ERROR_LOAD_SAVE
+{
+enum ERROR_LOAD_SAVE
+{
+    EFILE = 1 //can't load or save model
+};
+}
+
+namespace ERROR_ESTIMATE
+{
+enum ERROR_ESTIMATE
+{
+    EFILE = 1, //can't open file with right positions
+    EINVAL_DIMEN, //invalid dimensions of patch in file
+};
+}
+
+namespace ERROR_PREDICT
+{
+enum ERROR_PREDICT
+{
+    ELOAD = 1, //can't load model
+    EPRES, //model is not loaded
+};
+}
 #endif   /* ----- #ifndef model_h_INC  ----- */

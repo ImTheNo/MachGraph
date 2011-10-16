@@ -1,22 +1,32 @@
+#ifndef  viewbase_INC
+#define  viewbase_INC
 
-#include	<QtGui>
+#include <QMainWindow>
+#include	<QImage>
+#include	<QDir>
+#include	<QTextStream>
 #include	<iostream>
 #include	<vector>
+#include <QDebug>
 
-class ViewBase 
+class ViewBase: public QMainWindow
 {
     Q_OBJECT
 
 public:
-    ViewBase();
-public signals:
-    int eventTeach(QString & dir); 
-    int eventPredictEstimate(QString dir = QString(), QString right_positions = QString());
-    int eventEstimate(QString detected, QString right_positions);
-public slots:
-    int virtual Suspend();
-    int virtual Resume();
-    void virtual tellToUser(QString & message, int num) tell user some information about how model is respond to user input
-    void virtual setPrecense(char flag) flag != 0 if program has loaded classificator
-    void virtual setQualityEstimation(double recall, double precision) show quality factors to user
+    ViewBase(QWidget *parent = 0);
+    void virtual Suspend(QString message = QString()) = 0;
+    void virtual Resume() = 0;
+    void virtual tellToUser(QString  message) = 0;
+    void virtual setPrecense(char flag) = 0;
+    void virtual setQualityEstimation(double recall, double precision) = 0;
+    void virtual showImage(QString file, std::vector<QPoint> results) = 0;
+signals:
+    void eventTeach(QString dir, QString pos); 
+    void eventSave(QString model);
+    void eventLoad(QString model);
+    void eventPredictEstimate(QString dir, QString right_positions = QString());
+    void eventEstimate(QString detected, QString right_positions);
+    void eventPredictOne(QString  file);
 };
+#endif   /* ----- #ifndef viewbase_INC  ----- */
